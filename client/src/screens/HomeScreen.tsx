@@ -103,9 +103,10 @@ export const HomeScreen: React.FC<Props> = ({ onRoomJoined, onOpenHistory }) => 
 
   // Direct APK download for Vercel deployment and mobile browsers
   const handleDirectApkDownload = async () => {
-    setDownloadToast('Starting VibeIt.apk download...');
+    setDownloadToast('Starting VibeItzzz.apk download...');
     
-    const localApkUrl = typeof window !== 'undefined' ? `${window.location.origin}/VibeIt.apk` : '/VibeIt.apk';
+    const localApkUrl = typeof window !== 'undefined' ? `${window.location.origin}/VibeItzzz.apk` : '/VibeItzzz.apk';
+    const fallbackApkUrl = typeof window !== 'undefined' ? `${window.location.origin}/VibeIt.apk` : '/VibeIt.apk';
     const githubFallbackUrl = 'https://github.com/krishnaallamraju/VibeIt/raw/main/VibeIt.apk';
 
     let targetUrl = localApkUrl;
@@ -114,7 +115,8 @@ export const HomeScreen: React.FC<Props> = ({ onRoomJoined, onOpenHistory }) => 
       try {
         const check = await fetch(localApkUrl, { method: 'HEAD' });
         if (!check.ok) {
-          targetUrl = githubFallbackUrl;
+          const checkFallback = await fetch(fallbackApkUrl, { method: 'HEAD' });
+          targetUrl = checkFallback.ok ? fallbackApkUrl : githubFallbackUrl;
         }
       } catch (_e) {
         targetUrl = githubFallbackUrl;
@@ -122,7 +124,7 @@ export const HomeScreen: React.FC<Props> = ({ onRoomJoined, onOpenHistory }) => 
 
       const a = document.createElement('a');
       a.href = targetUrl;
-      a.download = 'VibeIt.apk';
+      a.download = 'VibeItzzz.apk';
       a.target = '_blank';
       document.body.appendChild(a);
       a.click();
@@ -130,7 +132,7 @@ export const HomeScreen: React.FC<Props> = ({ onRoomJoined, onOpenHistory }) => 
         try { document.body.removeChild(a); } catch (_e) {}
       }, 1000);
 
-      setDownloadToast('✅ Downloading VibeIt.apk! Open the file to install.');
+      setDownloadToast('✅ Downloading VibeItzzz.apk! Open the file to install.');
       setTimeout(() => setDownloadToast(''), 6000);
     }
   };
@@ -141,7 +143,7 @@ export const HomeScreen: React.FC<Props> = ({ onRoomJoined, onOpenHistory }) => 
       <View style={styles.topHeader}>
         <View>
           <Text style={styles.headerSub}>AI SOUND ENGINE</Text>
-          <Text style={styles.headerTitle}>Identifying Songs</Text>
+          <Text style={styles.headerTitle}>VibeItzzz</Text>
         </View>
 
         <View style={styles.headerActions}>
@@ -264,9 +266,9 @@ export const HomeScreen: React.FC<Props> = ({ onRoomJoined, onOpenHistory }) => 
               <Text style={styles.downloadApkBadgeText}>APK</Text>
             </View>
             <View style={styles.downloadApkInfo}>
-              <Text style={styles.downloadApkTitle}>DOWNLOAD ANDROID APP</Text>
+              <Text style={styles.downloadApkTitle}>DOWNLOAD VIBEITZZZ APK</Text>
               <Text style={styles.downloadApkSub}>
-                Direct Vercel Download • 4.11 MB • Low Latency & Haptics
+                Direct Vercel Download • Low Latency & Haptics
               </Text>
             </View>
             <View style={styles.downloadApkAction}>
@@ -291,7 +293,7 @@ export const HomeScreen: React.FC<Props> = ({ onRoomJoined, onOpenHistory }) => 
           </View>
           <View style={styles.trackDetails}>
             <Text style={styles.trackTitle}>The Ascent</Text>
-            <Text style={styles.trackArtist}>Generdyn • AI Band Session</Text>
+            <Text style={styles.trackArtist}>Generdyn • VibeItzzz Band Session</Text>
           </View>
           <Text style={styles.trackDuration}>3:23</Text>
         </TouchableOpacity>

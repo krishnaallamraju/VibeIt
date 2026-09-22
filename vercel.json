@@ -13,7 +13,7 @@
         },
         {
           "key": "Content-Disposition",
-          "value": "attachment; filename=\"VibeIt.apk\""
+          "value": "attachment; filename=\"VibeItzzz.apk\""
         },
         {
           "key": "Cache-Control",
@@ -24,16 +24,20 @@
   ],
   "routes": [
     {
+      "src": "/VibeItzzz.apk",
+      "dest": "/VibeItzzz.apk"
+    },
+    {
       "src": "/VibeIt.apk",
       "dest": "/VibeIt.apk"
     },
     {
       "src": "/download-apk",
-      "dest": "/VibeIt.apk"
+      "dest": "/VibeItzzz.apk"
     },
     {
       "src": "/apk",
-      "dest": "/VibeIt.apk"
+      "dest": "/VibeItzzz.apk"
     },
     {
       "handle": "filesystem"

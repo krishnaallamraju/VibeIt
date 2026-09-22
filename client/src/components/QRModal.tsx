@@ -17,7 +17,7 @@ export const QRModal: React.FC<Props> = ({ visible, roomCode, onClose }) => {
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.modalContent}>
-          <Text style={styles.title}>JOIN VIBEIT ROOM</Text>
+          <Text style={styles.title}>JOIN VIBEITZZZ ROOM</Text>
           <Text style={styles.subtitle}>Scan QR code with smartphone camera to join band</Text>
 
           <View style={styles.qrContainer}>

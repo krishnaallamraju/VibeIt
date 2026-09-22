@@ -34,7 +34,7 @@ const PORT = process.env.PORT || 4000;
 app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
-    service: 'VibeIt Socket.IO Server',
+    service: 'VibeItzzz Socket.IO Server',
     time: Date.now(),
     timestamp: new Date().toISOString(),
   });
@@ -43,7 +43,7 @@ app.get('/api/health', (_req, res) => {
 app.get('/api/server-info', (_req, res) => {
   res.json({
     status: 'ok',
-    service: 'VibeIt Backend & Master Clock',
+    service: 'VibeItzzz Backend & Master Clock',
     localIp,
     port: Number(PORT),
     serverUrl: `http://${localIp}:${PORT}`,
@@ -61,7 +61,10 @@ app.get('/api/performances', (_req, res) => {
 
 // Downloadable APK Handler
 const apkPaths = [
+  path.join(__dirname, '../../VibeItzzz.apk'),
   path.join(__dirname, '../../VibeIt.apk'),
+  path.join(__dirname, '../../client/public/VibeItzzz.apk'),
+  path.join(__dirname, '../../client/public/VibeIt.apk'),
   path.join(__dirname, '../../client/android/app/build/outputs/apk/debug/app-debug.apk'),
 ];
 
@@ -69,7 +72,7 @@ function handleApkDownload(_req: express.Request, res: express.Response) {
   for (const candidate of apkPaths) {
     if (fs.existsSync(candidate)) {
       res.setHeader('Content-Type', 'application/vnd.android.package-archive');
-      res.setHeader('Content-Disposition', 'attachment; filename="VibeIt.apk"');
+      res.setHeader('Content-Disposition', 'attachment; filename="VibeItzzz.apk"');
       return res.sendFile(candidate);
     }
   }
@@ -77,6 +80,7 @@ function handleApkDownload(_req: express.Request, res: express.Response) {
 }
 
 app.get('/download-apk', handleApkDownload);
+app.get('/VibeItzzz.apk', handleApkDownload);
 app.get('/VibeIt.apk', handleApkDownload);
 
 // Serve compiled web frontend static assets
@@ -102,7 +106,7 @@ setupSocketEvents(io);
 
 server.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`\n======================================================`);
-  console.log(`🎸 VibeIt Master Server & Web App is LIVE!`);
+  console.log(`🎸 VibeItzzz Master Server & Web App is LIVE!`);
   console.log(`💻 Local access:      http://localhost:${PORT}`);
   console.log(`📱 Mobile Wi-Fi URL:  http://${localIp}:${PORT}`);
   console.log(`📦 Download APK link: http://${localIp}:${PORT}/download-apk`);

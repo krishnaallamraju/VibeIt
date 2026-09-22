@@ -1,4 +1,4 @@
-# 🎸 VibeIt - AI-Powered Real-Time Synchronized Smartphone Band
+# 🎸 VibeItzzz - AI-Powered Real-Time Synchronized Smartphone Band
 
 Turn multiple smartphones into one synchronized, AI-powered musical band. Join rooms, assign instruments (Drums, Synth Keyboard, Bass, AI Vocals, AI Bandmate), and perform live with zero perceptible latency across devices!
 
@@ -6,15 +6,15 @@ Turn multiple smartphones into one synchronized, AI-powered musical band. Join r
 
 ## 📲 Download Android APK
 
-[![Download Android APK](https://img.shields.io/badge/Download-VibeIt.apk%20(4.11%20MB)-00E676?style=for-the-badge&logo=android&logoColor=white)](https://github.com/krishnaallamraju/VibeIt/raw/main/VibeIt.apk)
+[![Download Android APK](https://img.shields.io/badge/Download-VibeItzzz.apk-00E676?style=for-the-badge&logo=android&logoColor=white)](https://github.com/krishnaallamraju/VibeIt/raw/main/VibeItzzz.apk)
 
-### ⬇️ **[Click Here to Download VibeIt.apk](https://github.com/krishnaallamraju/VibeIt/raw/main/VibeIt.apk)**
+### ⬇️ **[Click Here to Download VibeItzzz.apk](https://github.com/krishnaallamraju/VibeIt/raw/main/VibeItzzz.apk)**
 
 | Property | Details |
 | :--- | :--- |
-| **Direct Download URL** | [`https://github.com/krishnaallamraju/VibeIt/raw/main/VibeIt.apk`](https://github.com/krishnaallamraju/VibeIt/raw/main/VibeIt.apk) |
-| **File Name** | `VibeIt.apk` |
-| **File Size** | `4.11 MB` (`4,314,349 bytes`) |
+| **Direct Download URL** | [`https://github.com/krishnaallamraju/VibeIt/raw/main/VibeItzzz.apk`](https://github.com/krishnaallamraju/VibeIt/raw/main/VibeItzzz.apk) |
+| **File Name** | `VibeItzzz.apk` (and `VibeIt.apk`) |
+| **File Size** | `7.89 MB` (`8,276,111 bytes`) |
 | **Compatibility** | Android 7.0+ (API 24+) |
 | **How to Install** | Download onto your phone, tap the file in Downloads, and tap **Install**. |
 

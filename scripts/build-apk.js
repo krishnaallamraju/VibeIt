@@ -12,7 +12,8 @@ const candidateApks = [
   path.join(os.tmpdir(), 'vibeit-gradle-build', 'app', 'outputs', 'apk', 'debug', 'app-debug.apk'),
   path.join(androidDir, 'app', 'build', 'outputs', 'apk', 'debug', 'app-debug.apk'),
 ];
-const rootApk = path.join(rootDir, 'VibeIt.apk');
+const rootApk = path.join(rootDir, 'VibeItzzz.apk');
+const rootApkLegacy = path.join(rootDir, 'VibeIt.apk');
 
 console.log('🚀 [1/5] Exporting Expo web bundle...');
 execSync('npx expo export --platform web', { cwd: clientDir, stdio: 'inherit' });
@@ -30,27 +31,33 @@ console.log('\n🔨 [4/5] Compiling Android APK with Gradle...');
 const gradlewCmd = process.platform === 'win32' ? '.\\gradlew.bat assembleDebug' : './gradlew assembleDebug';
 execSync(gradlewCmd, { cwd: androidDir, stdio: 'inherit' });
 
-console.log('\n📦 [5/5] Packaging and copying VibeIt.apk to project root...');
+console.log('\n📦 [5/5] Packaging and copying VibeItzzz.apk to project root...');
 let foundApk = candidateApks.find(p => fs.existsSync(p));
 if (!foundApk) {
   console.error('❌ Error: Compiled APK not found in candidates:', candidateApks);
   process.exit(1);
 }
 
+// Copy to both VibeItzzz.apk and VibeIt.apk
 fs.copyFileSync(foundApk, rootApk);
-const publicApk = path.join(clientDir, 'public', 'VibeIt.apk');
-const distApk = path.join(clientDir, 'dist', 'VibeIt.apk');
-if (fs.existsSync(path.join(clientDir, 'public'))) {
-  fs.copyFileSync(foundApk, publicApk);
+fs.copyFileSync(foundApk, rootApkLegacy);
+
+const publicDir = path.join(clientDir, 'public');
+const distDir = path.join(clientDir, 'dist');
+if (fs.existsSync(publicDir)) {
+  fs.copyFileSync(foundApk, path.join(publicDir, 'VibeItzzz.apk'));
+  fs.copyFileSync(foundApk, path.join(publicDir, 'VibeIt.apk'));
 }
-if (fs.existsSync(path.join(clientDir, 'dist'))) {
-  fs.copyFileSync(foundApk, distApk);
+if (fs.existsSync(distDir)) {
+  fs.copyFileSync(foundApk, path.join(distDir, 'VibeItzzz.apk'));
+  fs.copyFileSync(foundApk, path.join(distDir, 'VibeIt.apk'));
 }
+
 const stats = fs.statSync(rootApk);
 const sizeMb = (stats.size / (1024 * 1024)).toFixed(2);
 
 console.log('\n======================================================');
-console.log('🎉 VibeIt Android APK successfully generated!');
+console.log('🎉 VibeItzzz Android APK successfully generated!');
 console.log(`📱 APK Path:  ${rootApk}`);
 console.log(`📊 APK Size:  ${sizeMb} MB (${stats.size.toLocaleString()} bytes)`);
 console.log('🌐 Server download endpoint ready at: /download-apk');
