@@ -1,0 +1,16 @@
+{
+  "name": "pocketband-root",
+  "version": "1.0.0",
+  "description": "PocketBand - AI-Powered Real-Time Synchronized Smartphone Band",
+  "scripts": {
+    "start:server": "npm --prefix server start",
+    "dev:server": "npm --prefix server run dev",
+    "start:client": "npm --prefix client run web",
+    "build:client": "npm --prefix client run build:web",
+    "build:server": "npm --prefix server run build",
+    "build:apk": "node scripts/build-apk.js",
+    "install:apk": "node scripts/install-apk.js",
+    "check": "npm --prefix server run build && cd client && npx tsc --noEmit"
+  },
+  "private": true
+}

@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+*/node_modules/
+package-lock.json
+client/package-lock.json
+server/package-lock.json
+
+# Builds & compiled bundles
+dist/
+client/dist/
+server/dist/
+.expo/
+client/.expo/
+
+# Android & Gradle
+.gradle/
+client/android/.gradle/
+client/android/build/
+client/android/app/build/
+client/android/local.properties
+client/android/app/src/main/assets/public/
+client/android/capacitor-cordova-android-plugins/
+
+# OS & Logs
+*.log
+.DS_Store
+Thumbs.db

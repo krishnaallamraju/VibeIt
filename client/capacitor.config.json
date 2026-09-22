@@ -1,0 +1,8 @@
+{
+  "appId": "com.pocketband.app",
+  "appName": "VibeIt",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}
