@@ -21,7 +21,7 @@ export class BassSynth {
     style: BassStyle = 'sub'
   ): void {
     const ctx = audioEngine.getContext();
-    const startTime = time || ctx.currentTime;
+    const startTime = Math.max(ctx.currentTime, time || ctx.currentTime);
     const dest = audioEngine.getDestination();
     const freq = this.noteToFreq(note);
 

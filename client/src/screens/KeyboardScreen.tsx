@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { socketClient } from '../network/SocketClient';
 import { KeySynth, SynthPreset } from '../audio/KeySynth';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Room } from '../types';
 
 interface Props {
@@ -50,6 +51,10 @@ export const KeyboardScreen: React.FC<Props> = ({ room, selfName, onBackToLobby 
 
     // Play locally
     KeySynth.playNote(note, undefined, 0.4, 0.8, preset);
+
+    try {
+      Haptics.impact({ style: ImpactStyle.Light });
+    } catch (_e) {}
 
     // Broadcast event to band room
     socketClient.sendNoteEvent({

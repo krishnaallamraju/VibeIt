@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { socketClient } from '../network/SocketClient';
 import { BassSynth, BassStyle } from '../audio/BassSynth';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Room } from '../types';
 
 interface Props {
@@ -27,6 +28,10 @@ export const BassScreen: React.FC<Props> = ({ room, selfName, onBackToLobby }) =
 
     // Play locally
     BassSynth.playBass(note, undefined, 0.5, 0.9, style);
+
+    try {
+      Haptics.impact({ style: ImpactStyle.Medium });
+    } catch (_e) {}
 
     // Broadcast event
     socketClient.sendNoteEvent({

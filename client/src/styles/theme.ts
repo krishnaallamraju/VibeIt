@@ -1,20 +1,23 @@
-// Dribbble Modern Dark Music App Theme System
+// Dribbble Modern Dark Music App Theme System (Identifying Songs Inspired)
 
 export const theme = {
   colors: {
-    background: '#0B0C10',       // Deep midnight obsidian
-    cardBg: '#141622',           // Sleek dark glass card
-    cardBgSecondary: '#1C1F30',  // Slightly lighter glass layer
-    border: '#2A2E45',           // Subtle card border
-    borderActive: '#7C3AED',     // Vibrant violet border highlight
+    background: '#06070B',       // Deep obsidian inky black
+    backgroundAura: '#090B14',   // Midnight blue ambient aura
+    cardBg: 'rgba(16, 20, 34, 0.72)', // Frosted dark glass
+    cardBgSecondary: 'rgba(24, 29, 48, 0.55)',
+    cardBgSolid: '#101422',
+    border: 'rgba(255, 255, 255, 0.08)',
+    borderActive: '#A855F7',     // Neon Purple / Violet
     
-    // Accents
-    primary: '#7C3AED',          // Electric Violet / Purple
-    primaryGlow: '#9333EA',
+    // Glowing Dribbble Accents
+    primary: '#A855F7',          // Electric Violet
+    primaryGlow: '#C084FC',
     secondary: '#00E5FF',        // Electric Cyan
-    pink: '#FF2A75',             // Vivid Pink / Coral
-    green: '#00E676',            // Neon Emerald
-    yellow: '#FFC107',           // Gold
+    blue: '#3B82F6',             // Azure Blue
+    green: '#10B981',            // Emerald Mint
+    pink: '#F43F5E',             // Rose Neon
+    yellow: '#F59E0B',           // Amber Gold
     
     // Text
     textPrimary: '#FFFFFF',
@@ -22,33 +25,33 @@ export const theme = {
     textMuted: '#64748B',
   },
   borderRadius: {
-    sm: 8,
-    md: 14,
-    lg: 20,
-    xl: 28,
+    sm: 10,
+    md: 16,
+    lg: 24,
+    xl: 32,
     full: 9999,
   },
   shadows: {
     card: {
-      shadowColor: '#7C3AED',
-      shadowOffset: { width: 0, height: 6 },
-      shadowOpacity: 0.25,
-      shadowRadius: 12,
-      elevation: 6,
-    },
-    glowGreen: {
-      shadowColor: '#00E676',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.4,
-      shadowRadius: 10,
+      shadowColor: '#000000',
+      shadowOffset: { width: 0, height: 10 },
+      shadowOpacity: 0.5,
+      shadowRadius: 20,
       elevation: 8,
     },
-    glowPrimary: {
-      shadowColor: '#7C3AED',
-      shadowOffset: { width: 0, height: 8 },
+    glowOrb: {
+      shadowColor: '#A855F7',
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: 0.65,
+      shadowRadius: 30,
+      elevation: 16,
+    },
+    glowCyan: {
+      shadowColor: '#00E5FF',
+      shadowOffset: { width: 0, height: 0 },
       shadowOpacity: 0.5,
-      shadowRadius: 16,
+      shadowRadius: 20,
       elevation: 10,
-    }
+    },
   }
 };

@@ -38,6 +38,14 @@ if (!foundApk) {
 }
 
 fs.copyFileSync(foundApk, rootApk);
+const publicApk = path.join(clientDir, 'public', 'VibeIt.apk');
+const distApk = path.join(clientDir, 'dist', 'VibeIt.apk');
+if (fs.existsSync(path.join(clientDir, 'public'))) {
+  fs.copyFileSync(foundApk, publicApk);
+}
+if (fs.existsSync(path.join(clientDir, 'dist'))) {
+  fs.copyFileSync(foundApk, distApk);
+}
 const stats = fs.statSync(rootApk);
 const sizeMb = (stats.size / (1024 * 1024)).toFixed(2);
 

@@ -3,6 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 
 import { socketClient } from '../network/SocketClient';
 import { InstrumentType } from '../types';
 import { theme } from '../styles/theme';
+import { KeySynth } from '../audio/KeySynth';
+import { audioEngine } from '../audio/AudioEngine';
 
 interface Props {
   onRoomJoined: (code: string) => void;
@@ -17,11 +19,11 @@ const INSTRUMENT_CAROUSEL: {
   color: string;
   gradient: string;
 }[] = [
-  { id: 'drums', label: 'AI Drums', sub: 'Motion Strike & Tap', icon: '🥁', color: '#FF2A75', gradient: 'rgba(255, 42, 117, 0.15)' },
-  { id: 'keyboard', label: 'Synth Piano', sub: 'Polyphonic ADSR', icon: '🎹', color: '#7C3AED', gradient: 'rgba(124, 58, 237, 0.15)' },
-  { id: 'bass', label: 'Bass Guitar', sub: 'Sub-Bass & Slap', icon: '🎸', color: '#00E5FF', gradient: 'rgba(0, 229, 255, 0.15)' },
-  { id: 'vocals', label: 'AI Vocals', sub: 'Mic Pitch Autotune', icon: '🎤', color: '#FFC107', gradient: 'rgba(255, 193, 7, 0.15)' },
-  { id: 'bandmate', label: 'AI Bandmate', sub: 'Co-Pilot Accompaniment', icon: '🤖', color: '#00E676', gradient: 'rgba(0, 230, 118, 0.15)' },
+  { id: 'drums', label: 'AI Drums', sub: 'Motion & Tap', icon: '🥁', color: '#FF2A75', gradient: 'rgba(255, 42, 117, 0.2)' },
+  { id: 'keyboard', label: 'Synth Piano', sub: 'Polyphonic ADSR', icon: '🎹', color: '#A855F7', gradient: 'rgba(168, 85, 247, 0.2)' },
+  { id: 'bass', label: 'Bass Guitar', sub: 'Sub & Slap', icon: '🎸', color: '#00E5FF', gradient: 'rgba(0, 229, 255, 0.2)' },
+  { id: 'vocals', label: 'AI Vocals', sub: 'Autotune & Pitch', icon: '🎤', color: '#F59E0B', gradient: 'rgba(245, 158, 11, 0.2)' },
+  { id: 'bandmate', label: 'AI Bandmate', sub: 'Smart Accompanist', icon: '🤖', color: '#10B981', gradient: 'rgba(16, 185, 129, 0.2)' },
 ];
 
 export const HomeScreen: React.FC<Props> = ({ onRoomJoined, onOpenHistory }) => {
@@ -31,6 +33,10 @@ export const HomeScreen: React.FC<Props> = ({ onRoomJoined, onOpenHistory }) => 
   const [errorMsg, setErrorMsg] = useState('');
   const [showServerConfig, setShowServerConfig] = useState(false);
   const [serverIp, setServerIp] = useState(socketClient.getServerUrl());
+  const [downloadToast, setDownloadToast] = useState('');
+  const [isOrbActive, setIsOrbActive] = useState(false);
+
+  const isNativeApp = typeof window !== 'undefined' && Boolean((window as any).Capacitor);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location) {
@@ -50,6 +56,19 @@ export const HomeScreen: React.FC<Props> = ({ onRoomJoined, onOpenHistory }) => 
 
     return () => unsubError();
   }, []);
+
+  const handleOrbPress = () => {
+    setIsOrbActive(true);
+    setTimeout(() => setIsOrbActive(false), 800);
+
+    // Audio unlock and musical shimmer chime
+    try {
+      audioEngine.init();
+      KeySynth.playNote('C4', undefined, 0.4, 0.7, 'pad');
+      setTimeout(() => KeySynth.playNote('G4', undefined, 0.5, 0.75, 'pad'), 100);
+      setTimeout(() => KeySynth.playNote('C5', undefined, 0.6, 0.8, 'pad'), 200);
+    } catch (_e) {}
+  };
 
   const handleCreateRoom = () => {
     if (!name.trim()) {
@@ -82,69 +101,88 @@ export const HomeScreen: React.FC<Props> = ({ onRoomJoined, onOpenHistory }) => 
     }
   };
 
+  // Direct APK download for Vercel deployment and mobile browsers
+  const handleDirectApkDownload = async () => {
+    setDownloadToast('Starting VibeIt.apk download...');
+    
+    const localApkUrl = typeof window !== 'undefined' ? `${window.location.origin}/VibeIt.apk` : '/VibeIt.apk';
+    const githubFallbackUrl = 'https://github.com/krishnaallamraju/VibeIt/raw/main/VibeIt.apk';
+
+    let targetUrl = localApkUrl;
+
+    if (typeof window !== 'undefined') {
+      try {
+        const check = await fetch(localApkUrl, { method: 'HEAD' });
+        if (!check.ok) {
+          targetUrl = githubFallbackUrl;
+        }
+      } catch (_e) {
+        targetUrl = githubFallbackUrl;
+      }
+
+      const a = document.createElement('a');
+      a.href = targetUrl;
+      a.download = 'VibeIt.apk';
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        try { document.body.removeChild(a); } catch (_e) {}
+      }, 1000);
+
+      setDownloadToast('✅ Downloading VibeIt.apk! Open the file to install.');
+      setTimeout(() => setDownloadToast(''), 6000);
+    }
+  };
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Vinyl Visualizer Hero Header */}
-      <View style={styles.heroWrapper}>
-        <View style={styles.vinylContainer}>
-          <View style={styles.vinylDisc}>
-            <View style={styles.vinylRing1} />
-            <View style={styles.vinylRing2} />
-            <View style={styles.vinylCenter}>
-              <Text style={styles.vinylCenterIcon}>🎸</Text>
-            </View>
-          </View>
+    <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Top Header Bar (Matching Dribbble Identifying Songs Header) */}
+      <View style={styles.topHeader}>
+        <View>
+          <Text style={styles.headerSub}>AI SOUND ENGINE</Text>
+          <Text style={styles.headerTitle}>Identifying Songs</Text>
         </View>
 
-        <TouchableOpacity
-          style={styles.liveTag}
-          onPress={() => setShowServerConfig(!showServerConfig)}
-        >
-          <View style={styles.liveDot} />
-          <Text style={styles.liveTagText}>SERVER: {socketClient.getServerUrl()} (TAP TO EDIT)</Text>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          {/* Avatar Profile */}
+          <TouchableOpacity style={styles.avatarButton} activeOpacity={0.8}>
+            <Text style={styles.avatarIcon}>👤</Text>
+            <View style={styles.avatarOnlineDot} />
+          </TouchableOpacity>
 
-        <Text style={styles.heroTitle}>VIBEIT</Text>
-        <Text style={styles.heroSubtitle}>
-          Turn multiple smartphones into one synchronized AI-powered musical band. Join rooms, assign instruments, and perform live!
-        </Text>
-
-        {/* APK Download Button for Mobile Players */}
-        <TouchableOpacity
-          style={styles.downloadApkBtn}
-          onPress={() => {
-            const downloadUrl = `${socketClient.getServerUrl()}/download-apk`;
-            if (typeof window !== 'undefined') {
-              window.open(downloadUrl, '_blank');
-            }
-          }}
-        >
-          <Text style={styles.downloadApkIcon}>🤖</Text>
-          <View style={styles.downloadApkInfo}>
-            <Text style={styles.downloadApkTitle}>DOWNLOAD ANDROID APK</Text>
-            <Text style={styles.downloadApkSub}>Install VibeIt on your smartphone for lowest audio latency</Text>
-          </View>
-          <Text style={styles.downloadApkArrow}>⬇</Text>
-        </TouchableOpacity>
+          {/* Settings / Config Button */}
+          <TouchableOpacity
+            style={[styles.settingsButton, showServerConfig ? styles.settingsButtonActive : null]}
+            onPress={() => setShowServerConfig(!showServerConfig)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.settingsIcon}>⚙️</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Error Banner */}
       {errorMsg ? (
-        <TouchableOpacity
-          style={styles.errorBanner}
-          onPress={() => setShowServerConfig(true)}
-        >
+        <TouchableOpacity style={styles.errorBanner} onPress={() => setShowServerConfig(true)}>
           <Text style={styles.errorText}>⚠️ {errorMsg}</Text>
-          <Text style={styles.errorSubText}>Tap here to change backend server IP address ↓</Text>
+          <Text style={styles.errorSubText}>Tap here to adjust server connection settings ↓</Text>
         </TouchableOpacity>
+      ) : null}
+
+      {/* Download Toast Notification */}
+      {downloadToast ? (
+        <View style={styles.toastBanner}>
+          <Text style={styles.toastText}>{downloadToast}</Text>
+        </View>
       ) : null}
 
       {/* Server Config Drawer */}
       {showServerConfig && (
         <View style={styles.serverConfigBox}>
-          <Text style={styles.serverConfigTitle}>⚙️ BACKEND SERVER CONNECTION SETTINGS</Text>
+          <Text style={styles.serverConfigTitle}>⚙️ BACKEND SERVER CONNECTION</Text>
           <Text style={styles.serverConfigDesc}>
-            Choose or enter your server URL to connect your phone to the VibeIt backend:
+            Current backend: {socketClient.getServerUrl()}
           </Text>
 
           <View style={styles.presetIpRow}>
@@ -156,10 +194,10 @@ export const HomeScreen: React.FC<Props> = ({ onRoomJoined, onOpenHistory }) => 
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.presetIpBtn, { backgroundColor: 'rgba(124, 58, 237, 0.15)', borderColor: theme.colors.primary, marginTop: 6 }]}
+              style={[styles.presetIpBtn, { backgroundColor: 'rgba(168, 85, 247, 0.15)', borderColor: '#A855F7', marginTop: 6 }]}
               onPress={() => handleSaveServerIp('http://10.188.203.113:4000')}
             >
-              <Text style={[styles.presetIpBtnText, { color: theme.colors.primary }]}>⚡ Host Wi-Fi IP (10.188.203.113:4000)</Text>
+              <Text style={[styles.presetIpBtnText, { color: '#C084FC' }]}>⚡ Host Wi-Fi IP (10.188.203.113:4000)</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -173,7 +211,7 @@ export const HomeScreen: React.FC<Props> = ({ onRoomJoined, onOpenHistory }) => 
           <View style={styles.serverIpRow}>
             <TextInput
               style={styles.serverIpInput}
-              placeholder="e.g. https://vibeit-master-server.loca.lt"
+              placeholder="e.g. http://10.188.203.113:4000"
               placeholderTextColor={theme.colors.textMuted}
               value={serverIp}
               onChangeText={setServerIp}
@@ -185,43 +223,116 @@ export const HomeScreen: React.FC<Props> = ({ onRoomJoined, onOpenHistory }) => 
         </View>
       )}
 
-      {/* Stage Profile & Instrument Picker */}
-      <View style={styles.glassCard}>
-        <Text style={styles.sectionTitle}>1. PLAYER STAGE NAME</Text>
+      {/* Central Luminous Sound Orb (Dribbble Hero Element) */}
+      <View style={styles.orbHeroWrapper}>
+        <TouchableOpacity
+          style={styles.orbTouchContainer}
+          onPress={handleOrbPress}
+          activeOpacity={0.9}
+        >
+          {/* Multi-layer atmospheric ambient radial backlights */}
+          <View style={styles.orbAmbientAura} />
+          <View style={styles.orbSecondaryAura} />
+
+          {/* Concentric Neon Swirl Rings */}
+          <View style={[styles.orbOuterRing, isOrbActive ? styles.orbOuterRingActive : null]}>
+            <View style={styles.orbGradientBorder} />
+            <View style={styles.orbMiddleRing}>
+              <View style={styles.orbInnerCore}>
+                <Text style={styles.orbCoreIcon}>🎙</Text>
+              </View>
+            </View>
+          </View>
+        </TouchableOpacity>
+
+        {/* Status indicator under Orb */}
+        <View style={styles.listeningTag}>
+          <View style={styles.pulsingDot} />
+          <Text style={styles.listeningTagText}>
+            {isOrbActive ? 'LISTENING & SYNCING...' : 'TAP ORB TO TEST SOUND & SYNC'}
+          </Text>
+        </View>
+
+        {/* APK Download Button for Web / Vercel Mobile Users */}
+        {!isNativeApp && (
+          <TouchableOpacity
+            style={styles.downloadApkCard}
+            onPress={handleDirectApkDownload}
+            activeOpacity={0.85}
+          >
+            <View style={styles.downloadApkBadge}>
+              <Text style={styles.downloadApkBadgeText}>APK</Text>
+            </View>
+            <View style={styles.downloadApkInfo}>
+              <Text style={styles.downloadApkTitle}>DOWNLOAD ANDROID APP</Text>
+              <Text style={styles.downloadApkSub}>
+                Direct Vercel Download • 4.11 MB • Low Latency & Haptics
+              </Text>
+            </View>
+            <View style={styles.downloadApkAction}>
+              <Text style={styles.downloadApkActionText}>⬇ GET</Text>
+            </View>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* My Music / Band Sessions Card (Matching Dribbble Bottom Card) */}
+      <View style={styles.myMusicSection}>
+        <View style={styles.myMusicHeader}>
+          <Text style={styles.myMusicTitle}>My Music</Text>
+          <TouchableOpacity onPress={onOpenHistory}>
+            <Text style={styles.viewAllText}>View all</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity style={styles.trackCard} onPress={onOpenHistory} activeOpacity={0.8}>
+          <View style={styles.trackArtwork}>
+            <Text style={styles.trackArtworkIcon}>🎸</Text>
+          </View>
+          <View style={styles.trackDetails}>
+            <Text style={styles.trackTitle}>The Ascent</Text>
+            <Text style={styles.trackArtist}>Generdyn • AI Band Session</Text>
+          </View>
+          <Text style={styles.trackDuration}>3:23</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Stage Profile & Starting Instrument */}
+      <View style={styles.glassSection}>
+        <Text style={styles.sectionHeading}>STAGE PROFILE & INSTRUMENT</Text>
+
         <TextInput
-          style={styles.nameInput}
-          placeholder="Enter your name (e.g., Karthik, Jimi, Lars)"
+          style={styles.nameInputField}
+          placeholder="Stage Name (e.g. Karthik, Hendrix, Lars)"
           placeholderTextColor={theme.colors.textMuted}
           value={name}
           onChangeText={setName}
         />
 
-        <Text style={styles.sectionTitle}>2. CHOOSE STARTING INSTRUMENT</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.carouselScroll}>
-          <View style={styles.carouselRow}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.instrumentScroll}>
+          <View style={styles.instrumentRow}>
             {INSTRUMENT_CAROUSEL.map(item => {
               const isSelected = selectedInstrument === item.id;
               return (
                 <TouchableOpacity
                   key={item.id}
                   style={[
-                    styles.instrCard,
-                    { backgroundColor: isSelected ? item.gradient : theme.colors.cardBgSecondary },
-                    isSelected ? { borderColor: item.color } : null,
+                    styles.instrumentCard,
+                    isSelected ? { borderColor: item.color, backgroundColor: item.gradient } : null,
                   ]}
                   onPress={() => setSelectedInstrument(item.id)}
                   activeOpacity={0.8}
                 >
-                  <View style={[styles.instrIconCircle, { backgroundColor: item.color }]}>
-                    <Text style={styles.instrIcon}>{item.icon}</Text>
+                  <View style={[styles.instrumentIconBox, { backgroundColor: item.color }]}>
+                    <Text style={styles.instrumentIconText}>{item.icon}</Text>
                   </View>
-                  <Text style={[styles.instrLabel, isSelected ? { color: item.color, fontWeight: '900' } : null]}>
+                  <Text style={[styles.instrumentName, isSelected ? { color: item.color } : null]}>
                     {item.label}
                   </Text>
-                  <Text style={styles.instrSub}>{item.sub}</Text>
+                  <Text style={styles.instrumentSubText}>{item.sub}</Text>
                   {isSelected && (
-                    <View style={[styles.selectedPill, { backgroundColor: item.color }]}>
-                      <Text style={styles.selectedPillText}>SELECTED</Text>
+                    <View style={[styles.selectedIndicator, { backgroundColor: item.color }]}>
+                      <Text style={styles.selectedIndicatorText}>ACTIVE</Text>
                     </View>
                   )}
                 </TouchableOpacity>
@@ -231,219 +342,571 @@ export const HomeScreen: React.FC<Props> = ({ onRoomJoined, onOpenHistory }) => 
         </ScrollView>
       </View>
 
-      {/* Action Deck (Create vs Join) */}
-      <View style={styles.actionGrid}>
+      {/* Action Deck (Create vs Join Band) */}
+      <View style={styles.actionRow}>
         {/* Create Band Room */}
-        <View style={[styles.actionCard, { marginRight: 6 }]}>
-          <Text style={styles.actionTitle}>CREATE A BAND</Text>
-          <Text style={styles.actionDesc}>Host a new session as Band Leader with room code/QR.</Text>
-          <TouchableOpacity style={styles.createBtn} onPress={handleCreateRoom}>
-            <Text style={styles.createBtnText}>+ CREATE ROOM</Text>
+        <View style={[styles.actionColumn, { marginRight: 6 }]}>
+          <Text style={styles.actionColumnTitle}>HOST BAND</Text>
+          <Text style={styles.actionColumnDesc}>Leader mode with sync & QR</Text>
+          <TouchableOpacity style={styles.createRoomButton} onPress={handleCreateRoom} activeOpacity={0.85}>
+            <Text style={styles.createRoomButtonText}>+ CREATE ROOM</Text>
           </TouchableOpacity>
         </View>
 
         {/* Join Band Room */}
-        <View style={[styles.actionCard, { marginLeft: 6 }]}>
-          <Text style={styles.actionTitle}>JOIN BAND</Text>
+        <View style={[styles.actionColumn, { marginLeft: 6 }]}>
+          <Text style={styles.actionColumnTitle}>JOIN BAND</Text>
           <TextInput
-            style={styles.codeInput}
-            placeholder="6-DIGIT CODE"
+            style={styles.roomCodeField}
+            placeholder="6-CODE"
             placeholderTextColor={theme.colors.textMuted}
             value={roomCode}
             onChangeText={t => setRoomCode(t.toUpperCase())}
             maxLength={6}
             autoCapitalize="characters"
           />
-          <TouchableOpacity style={styles.joinBtn} onPress={handleJoinRoom}>
-            <Text style={styles.joinBtnText}>JOIN ROOM</Text>
+          <TouchableOpacity style={styles.joinRoomButton} onPress={handleJoinRoom} activeOpacity={0.85}>
+            <Text style={styles.joinRoomButtonText}>JOIN ROOM</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Performances Library Quick Launcher */}
-      <TouchableOpacity style={styles.historyCard} onPress={onOpenHistory}>
-        <View style={styles.historyIconBox}>
-          <Text style={styles.historyIcon}>🎙</Text>
-        </View>
-        <View style={styles.historyInfo}>
-          <Text style={styles.historyTitle}>RECORDING STUDIO & HISTORY</Text>
-          <Text style={styles.historySub}>View & replay saved multi-track band performances</Text>
-        </View>
-        <Text style={styles.historyArrow}>→</Text>
-      </TouchableOpacity>
+      {/* Spacing for bottom dock */}
+      <View style={{ height: 90 }} />
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    backgroundColor: theme.colors.background,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    backgroundColor: '#06070B',
     minHeight: '100%',
   },
-  heroWrapper: {
+
+  // Top Header matching Dribbble screenshot
+  topHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 14,
+    marginBottom: 20,
+    marginTop: 6,
   },
-  vinylContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: 'rgba(124, 58, 237, 0.15)',
-    justifyContent: 'center',
+  headerSub: {
+    color: '#38BDF8',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1.5,
+    marginBottom: 2,
+  },
+  headerTitle: {
+    color: '#FFFFFF',
+    fontSize: 26,
+    fontWeight: '900',
+    letterSpacing: -0.5,
+  },
+  headerActions: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    borderWidth: 1.5,
-    borderColor: theme.colors.primary,
-    shadowColor: theme.colors.primary,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 8,
   },
-  vinylDisc: {
-    width: 82,
-    height: 82,
-    borderRadius: 41,
-    backgroundColor: '#141622',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#2A2E45',
-    position: 'relative',
-  },
-  vinylRing1: {
-    position: 'absolute',
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  vinylRing2: {
-    position: 'absolute',
+  avatarButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+    position: 'relative',
   },
-  vinylCenter: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: theme.colors.primary,
+  avatarIcon: {
+    fontSize: 20,
+  },
+  avatarOnlineDot: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#10B981',
+    borderWidth: 1.5,
+    borderColor: '#06070B',
+  },
+  settingsButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  vinylCenterIcon: {
-    fontSize: 14,
+  settingsButtonActive: {
+    backgroundColor: 'rgba(168, 85, 247, 0.25)',
+    borderColor: '#A855F7',
   },
-  liveTag: {
+  settingsIcon: {
+    fontSize: 18,
+  },
+
+  // Central Luminous Sound Orb (Identifying Songs Hero Element)
+  orbHeroWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 18,
+    position: 'relative',
+  },
+  orbTouchContainer: {
+    width: 250,
+    height: 250,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  orbAmbientAura: {
+    position: 'absolute',
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: 'rgba(168, 85, 247, 0.18)',
+    filter: 'blur(35px)',
+  },
+  orbSecondaryAura: {
+    position: 'absolute',
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: 'rgba(37, 99, 235, 0.2)',
+    filter: 'blur(25px)',
+  },
+  orbOuterRing: {
+    width: 210,
+    height: 210,
+    borderRadius: 105,
+    borderWidth: 3,
+    borderColor: '#A855F7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 0 45px rgba(168, 85, 247, 0.6), inset 0 0 25px rgba(37, 99, 235, 0.4)',
+    backgroundColor: '#070914',
+    position: 'relative',
+  },
+  orbOuterRingActive: {
+    borderColor: '#00E5FF',
+    boxShadow: '0 0 65px rgba(0, 229, 255, 0.8), inset 0 0 35px rgba(168, 85, 247, 0.6)',
+    transform: [{ scale: 1.05 }],
+  },
+  orbGradientBorder: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    borderRadius: 105,
+    borderWidth: 2,
+    borderColor: 'rgba(0, 229, 255, 0.35)',
+    borderTopColor: '#C084FC',
+    borderRightColor: '#3B82F6',
+    borderBottomColor: '#10B981',
+  },
+  orbMiddleRing: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: '#080A16',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  orbInnerCore: {
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    backgroundColor: '#0A0D1E',
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 0 20px rgba(168, 85, 247, 0.3)',
+  },
+  orbCoreIcon: {
+    fontSize: 42,
+    color: '#FFFFFF',
+  },
+
+  listeningTag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 230, 118, 0.15)',
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: theme.borderRadius.full,
+    backgroundColor: 'rgba(24, 30, 52, 0.7)',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: theme.colors.green,
-    marginBottom: 8,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    marginTop: 18,
+    marginBottom: 16,
   },
-  liveDot: {
+  pulsingDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: theme.colors.green,
-    marginRight: 6,
+    backgroundColor: '#10B981',
+    marginRight: 8,
+    boxShadow: '0 0 8px #10B981',
   },
-  liveTagText: {
-    color: theme.colors.green,
+  listeningTagText: {
+    color: '#94A3B8',
     fontSize: 10,
     fontWeight: '800',
-    letterSpacing: 0.8,
+    letterSpacing: 1,
   },
-  heroTitle: {
-    fontSize: 34,
+
+  // APK Download Card for Vercel & Mobile
+  downloadApkCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(16, 20, 36, 0.85)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(16, 185, 129, 0.5)',
+    borderRadius: 18,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    width: '100%',
+    maxWidth: 380,
+    boxShadow: '0 8px 24px rgba(16, 185, 129, 0.15)',
+  },
+  downloadApkBadge: {
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 8,
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: '#10B981',
+  },
+  downloadApkBadgeText: {
+    color: '#10B981',
+    fontSize: 10,
     fontWeight: '900',
-    color: theme.colors.textPrimary,
-    letterSpacing: 2,
   },
-  heroSubtitle: {
-    color: theme.colors.textSecondary,
+  downloadApkInfo: {
+    flex: 1,
+  },
+  downloadApkTitle: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+  },
+  downloadApkSub: {
+    color: '#94A3B8',
+    fontSize: 10,
+    marginTop: 2,
+  },
+  downloadApkAction: {
+    backgroundColor: '#10B981',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  downloadApkActionText: {
+    color: '#06070B',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+
+  // My Music / Live Sessions Section (Matching Dribbble bottom card)
+  myMusicSection: {
+    marginTop: 10,
+    marginBottom: 16,
+  },
+  myMusicHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  myMusicTitle: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  viewAllText: {
+    color: '#A855F7',
     fontSize: 12,
-    textAlign: 'center',
-    marginTop: 6,
-    maxWidth: 320,
-    lineHeight: 18,
+    fontWeight: '800',
   },
-  errorBanner: {
-    backgroundColor: theme.colors.pink,
+  trackCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(16, 20, 36, 0.75)',
+    borderRadius: 20,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  trackArtwork: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: 'linear-gradient(135deg, #A855F7 0%, #3B82F6 100%)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  trackArtworkIcon: {
+    fontSize: 22,
+  },
+  trackDetails: {
+    flex: 1,
+  },
+  trackTitle: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '800',
+    marginBottom: 2,
+  },
+  trackArtist: {
+    color: '#94A3B8',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  trackDuration: {
+    color: '#64748B',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+
+  // Glass Section for Stage Profile & Carousel
+  glassSection: {
+    backgroundColor: 'rgba(16, 20, 36, 0.75)',
+    borderRadius: 24,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  sectionHeading: {
+    color: '#94A3B8',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+    marginBottom: 10,
+  },
+  nameInputField: {
+    backgroundColor: 'rgba(24, 29, 48, 0.6)',
+    color: '#FFFFFF',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 14,
+    fontWeight: '700',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    marginBottom: 14,
+  },
+  instrumentScroll: {
+    flexDirection: 'row',
+  },
+  instrumentRow: {
+    flexDirection: 'row',
+  },
+  instrumentCard: {
+    width: 115,
     padding: 12,
-    borderRadius: theme.borderRadius.md,
-    marginBottom: 12,
+    borderRadius: 18,
+    alignItems: 'center',
+    marginRight: 10,
+    backgroundColor: 'rgba(24, 29, 48, 0.45)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
-  errorText: {
-    color: '#FFF',
+  instrumentIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  instrumentIconText: {
+    fontSize: 20,
+  },
+  instrumentName: {
+    color: '#FFFFFF',
+    fontSize: 12,
     fontWeight: '800',
     textAlign: 'center',
+  },
+  instrumentSubText: {
+    color: '#94A3B8',
+    fontSize: 9,
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  selectedIndicator: {
+    marginTop: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  selectedIndicatorText: {
+    color: '#FFFFFF',
+    fontSize: 8,
+    fontWeight: '900',
+  },
+
+  // Action Row (Host vs Join)
+  actionRow: {
+    flexDirection: 'row',
+    marginBottom: 16,
+  },
+  actionColumn: {
+    flex: 1,
+    backgroundColor: 'rgba(16, 20, 36, 0.75)',
+    borderRadius: 20,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    justifyContent: 'space-between',
+  },
+  actionColumnTitle: {
+    color: '#FFFFFF',
     fontSize: 13,
+    fontWeight: '900',
+  },
+  actionColumnDesc: {
+    color: '#94A3B8',
+    fontSize: 10,
+    marginTop: 2,
+    marginBottom: 10,
+  },
+  createRoomButton: {
+    backgroundColor: '#A855F7',
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    boxShadow: '0 4px 15px rgba(168, 85, 247, 0.4)',
+  },
+  createRoomButtonText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  roomCodeField: {
+    backgroundColor: 'rgba(24, 29, 48, 0.6)',
+    color: '#00E5FF',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    fontSize: 14,
+    fontWeight: '900',
+    textAlign: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    marginBottom: 8,
+    letterSpacing: 2,
+  },
+  joinRoomButton: {
+    backgroundColor: '#00E5FF',
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  joinRoomButtonText: {
+    color: '#06070B',
+    fontSize: 11,
+    fontWeight: '900',
+  },
+
+  // Notifications & Server Drawer
+  errorBanner: {
+    backgroundColor: 'rgba(244, 63, 94, 0.2)',
+    borderWidth: 1,
+    borderColor: '#F43F5E',
+    padding: 12,
+    borderRadius: 14,
+    marginBottom: 14,
+  },
+  errorText: {
+    color: '#F43F5E',
+    fontWeight: '800',
+    textAlign: 'center',
+    fontSize: 12,
   },
   errorSubText: {
-    color: 'rgba(255, 255, 255, 0.85)',
-    fontWeight: '600',
+    color: '#FDA4AF',
+    fontSize: 10,
     textAlign: 'center',
+    marginTop: 2,
+  },
+  toastBanner: {
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    borderWidth: 1,
+    borderColor: '#10B981',
+    padding: 10,
+    borderRadius: 12,
+    marginBottom: 14,
+  },
+  toastText: {
+    color: '#10B981',
+    fontWeight: '800',
     fontSize: 11,
-    marginTop: 4,
+    textAlign: 'center',
   },
   serverConfigBox: {
-    backgroundColor: theme.colors.cardBg,
-    borderRadius: theme.borderRadius.lg,
+    backgroundColor: 'rgba(16, 20, 36, 0.95)',
+    borderRadius: 18,
     padding: 14,
-    marginBottom: 14,
-    borderWidth: 1.5,
-    borderColor: theme.colors.secondary,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#38BDF8',
   },
   serverConfigTitle: {
-    color: theme.colors.secondary,
+    color: '#38BDF8',
     fontSize: 12,
     fontWeight: '900',
     marginBottom: 4,
   },
   serverConfigDesc: {
-    color: theme.colors.textSecondary,
-    fontSize: 11,
-    marginBottom: 10,
+    color: '#94A3B8',
+    fontSize: 10,
+    marginBottom: 8,
   },
   presetIpRow: {
-    marginBottom: 10,
+    marginBottom: 8,
   },
   presetIpBtn: {
-    backgroundColor: 'rgba(0, 229, 255, 0.15)',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: theme.borderRadius.md,
-    marginBottom: 6,
+    backgroundColor: 'rgba(56, 189, 248, 0.12)',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: theme.colors.secondary,
+    borderColor: '#38BDF8',
   },
   presetIpBtnText: {
-    color: theme.colors.secondary,
+    color: '#38BDF8',
+    fontSize: 11,
     fontWeight: '800',
-    fontSize: 12,
   },
   presetIpBtnSecondary: {
-    backgroundColor: theme.colors.cardBgSecondary,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: theme.borderRadius.md,
+    paddingHorizontal: 10,
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   presetIpBtnTextSecondary: {
-    color: theme.colors.textSecondary,
-    fontWeight: '700',
+    color: '#94A3B8',
     fontSize: 11,
+    fontWeight: '700',
   },
   serverIpRow: {
     flexDirection: 'row',
@@ -451,242 +914,26 @@ const styles = StyleSheet.create({
   },
   serverIpInput: {
     flex: 1,
-    backgroundColor: theme.colors.cardBgSecondary,
-    color: theme.colors.textPrimary,
-    borderRadius: theme.borderRadius.md,
+    backgroundColor: 'rgba(24, 29, 48, 0.8)',
+    color: '#FFFFFF',
+    borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 8,
-    fontSize: 13,
+    fontSize: 12,
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     marginRight: 8,
   },
   saveIpBtn: {
-    backgroundColor: theme.colors.secondary,
-    paddingHorizontal: 16,
+    backgroundColor: '#38BDF8',
+    paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: theme.borderRadius.md,
+    borderRadius: 10,
     justifyContent: 'center',
   },
   saveIpBtnText: {
-    color: '#000',
+    color: '#06070B',
     fontWeight: '900',
-    fontSize: 12,
-  },
-  glassCard: {
-    backgroundColor: theme.colors.cardBg,
-    borderRadius: theme.borderRadius.xl,
-    padding: 16,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    ...theme.shadows.card,
-  },
-  sectionTitle: {
-    color: theme.colors.textSecondary,
     fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 1.2,
-    marginBottom: 8,
-  },
-  nameInput: {
-    backgroundColor: theme.colors.cardBgSecondary,
-    color: theme.colors.textPrimary,
-    borderRadius: theme.borderRadius.md,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 14,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    marginBottom: 16,
-  },
-  carouselScroll: {
-    flexDirection: 'row',
-  },
-  carouselRow: {
-    flexDirection: 'row',
-  },
-  instrCard: {
-    width: 120,
-    padding: 12,
-    borderRadius: theme.borderRadius.lg,
-    alignItems: 'center',
-    marginRight: 10,
-    borderWidth: 1.5,
-    borderColor: theme.colors.border,
-  },
-  instrIconCircle: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  instrIcon: {
-    fontSize: 22,
-  },
-  instrLabel: {
-    color: theme.colors.textPrimary,
-    fontSize: 13,
-    fontWeight: '800',
-    textAlign: 'center',
-  },
-  instrSub: {
-    color: theme.colors.textSecondary,
-    fontSize: 10,
-    textAlign: 'center',
-    marginTop: 2,
-  },
-  selectedPill: {
-    marginTop: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: theme.borderRadius.full,
-  },
-  selectedPillText: {
-    color: '#FFF',
-    fontSize: 8,
-    fontWeight: '900',
-  },
-  actionGrid: {
-    flexDirection: 'row',
-    marginBottom: 14,
-  },
-  actionCard: {
-    flex: 1,
-    backgroundColor: theme.colors.cardBg,
-    borderRadius: theme.borderRadius.xl,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    justifyContent: 'space-between',
-  },
-  actionTitle: {
-    color: theme.colors.textPrimary,
-    fontSize: 14,
-    fontWeight: '900',
-    marginBottom: 4,
-  },
-  actionDesc: {
-    color: theme.colors.textSecondary,
-    fontSize: 11,
-    marginBottom: 12,
-  },
-  createBtn: {
-    backgroundColor: theme.colors.primary,
-    paddingVertical: 12,
-    borderRadius: theme.borderRadius.md,
-    alignItems: 'center',
-    ...theme.shadows.glowPrimary,
-  },
-  createBtnText: {
-    color: '#FFF',
-    fontWeight: '900',
-    fontSize: 12,
-  },
-  codeInput: {
-    backgroundColor: theme.colors.cardBgSecondary,
-    color: theme.colors.secondary,
-    borderRadius: theme.borderRadius.md,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    fontSize: 15,
-    fontWeight: '900',
-    textAlign: 'center',
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    marginBottom: 10,
-    letterSpacing: 2,
-  },
-  joinBtn: {
-    backgroundColor: theme.colors.secondary,
-    paddingVertical: 12,
-    borderRadius: theme.borderRadius.md,
-    alignItems: 'center',
-  },
-  joinBtnText: {
-    color: '#000',
-    fontWeight: '900',
-    fontSize: 12,
-  },
-  historyCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.cardBg,
-    borderRadius: theme.borderRadius.xl,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    ...theme.shadows.card,
-  },
-  historyIconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255, 193, 7, 0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-    borderWidth: 1,
-    borderColor: theme.colors.yellow,
-  },
-  historyIcon: {
-    fontSize: 22,
-  },
-  historyInfo: {
-    flex: 1,
-  },
-  historyTitle: {
-    color: theme.colors.yellow,
-    fontSize: 13,
-    fontWeight: '800',
-  },
-  historySub: {
-    color: theme.colors.textSecondary,
-    fontSize: 11,
-    marginTop: 2,
-  },
-  historyArrow: {
-    color: theme.colors.textSecondary,
-    fontSize: 18,
-    fontWeight: '900',
-  },
-  downloadApkBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 230, 118, 0.12)',
-    borderWidth: 1.5,
-    borderColor: '#00E676',
-    borderRadius: 14,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginTop: 18,
-    width: '100%',
-    maxWidth: 360,
-  },
-  downloadApkIcon: {
-    fontSize: 26,
-    marginRight: 12,
-  },
-  downloadApkInfo: {
-    flex: 1,
-  },
-  downloadApkTitle: {
-    color: '#00E676',
-    fontSize: 13,
-    fontWeight: '900',
-    letterSpacing: 0.8,
-  },
-  downloadApkSub: {
-    color: '#A6ADC8',
-    fontSize: 11,
-    marginTop: 2,
-  },
-  downloadApkArrow: {
-    color: '#00E676',
-    fontSize: 18,
-    fontWeight: '900',
-    marginLeft: 8,
   },
 });

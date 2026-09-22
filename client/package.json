@@ -7,7 +7,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build:web": "expo export --platform web",
+    "build:web": "expo export --platform web && node -e \"const fs=require('fs'); if(fs.existsSync('public/VibeIt.apk')) fs.copyFileSync('public/VibeIt.apk', 'dist/VibeIt.apk');\"",
     "cap:sync": "cap sync android",
     "build:apk": "expo export --platform web && cap sync android && cd android && .\\gradlew.bat assembleDebug"
   },

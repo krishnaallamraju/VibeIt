@@ -4,7 +4,7 @@ export class DrumSynth {
   // Play kick drum: exponential frequency sweep from 150Hz down to 30Hz
   public static playKick(time?: number, velocity = 0.9): void {
     const ctx = audioEngine.getContext();
-    const startTime = time || ctx.currentTime;
+    const startTime = Math.max(ctx.currentTime, time || ctx.currentTime);
     const dest = audioEngine.getDestination();
 
     const osc = ctx.createOscillator();
@@ -26,7 +26,7 @@ export class DrumSynth {
   // Play snare drum: Sine body + White noise burst
   public static playSnare(time?: number, velocity = 0.85): void {
     const ctx = audioEngine.getContext();
-    const startTime = time || ctx.currentTime;
+    const startTime = Math.max(ctx.currentTime, time || ctx.currentTime);
     const dest = audioEngine.getDestination();
 
     // Body Oscillator
@@ -72,7 +72,7 @@ export class DrumSynth {
   // Play Hi-Hat (Closed / Open)
   public static playHiHat(time?: number, velocity = 0.6, isOpen = false): void {
     const ctx = audioEngine.getContext();
-    const startTime = time || ctx.currentTime;
+    const startTime = Math.max(ctx.currentTime, time || ctx.currentTime);
     const dest = audioEngine.getDestination();
     const duration = isOpen ? 0.25 : 0.05;
 
@@ -105,7 +105,7 @@ export class DrumSynth {
   // Play Clap
   public static playClap(time?: number, velocity = 0.8): void {
     const ctx = audioEngine.getContext();
-    const startTime = time || ctx.currentTime;
+    const startTime = Math.max(ctx.currentTime, time || ctx.currentTime);
     const dest = audioEngine.getDestination();
 
     const burstTimes = [0, 0.01, 0.02, 0.03];
@@ -140,7 +140,7 @@ export class DrumSynth {
   // Play Tom
   public static playTom(time?: number, velocity = 0.8, isHigh = false): void {
     const ctx = audioEngine.getContext();
-    const startTime = time || ctx.currentTime;
+    const startTime = Math.max(ctx.currentTime, time || ctx.currentTime);
     const dest = audioEngine.getDestination();
     const startFreq = isHigh ? 220 : 130;
     const endFreq = isHigh ? 90 : 50;
