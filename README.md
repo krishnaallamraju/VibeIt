@@ -4,6 +4,22 @@ Turn multiple smartphones into one synchronized, AI-powered musical band. Join r
 
 ---
 
+## 📲 Download Android APK
+
+[![Download Android APK](https://img.shields.io/badge/Download-VibeIt.apk%20(4.11%20MB)-00E676?style=for-the-badge&logo=android&logoColor=white)](https://github.com/krishnaallamraju/VibeIt/raw/main/VibeIt.apk)
+
+### ⬇️ **[Click Here to Download VibeIt.apk](https://github.com/krishnaallamraju/VibeIt/raw/main/VibeIt.apk)**
+
+| Property | Details |
+| :--- | :--- |
+| **Direct Download URL** | [`https://github.com/krishnaallamraju/VibeIt/raw/main/VibeIt.apk`](https://github.com/krishnaallamraju/VibeIt/raw/main/VibeIt.apk) |
+| **File Name** | `VibeIt.apk` |
+| **File Size** | `4.11 MB` (`4,314,349 bytes`) |
+| **Compatibility** | Android 7.0+ (API 24+) |
+| **How to Install** | Download onto your phone, tap the file in Downloads, and tap **Install**. |
+
+---
+
 ## 🌟 Key Features
 
 - **🥁 AI Drums**: Multi-pad drum kit with realistic synthesis, physical tactile haptics on mobile, and accelerometer/gyroscope motion strike detection.
